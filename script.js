@@ -84,10 +84,13 @@ const gameState = {
   lastTime: 0,
   obstacles: [],
   donuts: [],
+  boosts: [],
   player: { ...playerTemplate },
   level: null,
   character: 'cat',
   gameOver: false,
+  boostActive: false,
+  boostTimer: 0,
 };
 
 let overlayAction = null;
@@ -134,8 +137,11 @@ function startLevel(levelIndex) {
   gameState.player.vy = 0;
   gameState.obstacles = [];
   gameState.donuts = [];
+  gameState.boosts = [];
   gameState.gameOver = false;
   gameState.running = false;
+  gameState.boostActive = false;
+  gameState.boostTimer = 0;
 
   createLevelObjects(gameState.level);
   hudLevel.textContent = gameState.level.name;
@@ -180,6 +186,10 @@ function createLevelObjects(level) {
     gameState.donuts.push({ x: donutX, y: donutY, radius: 16, collected: false });
   }
 
+  const boostX = canvas.width + Math.min(level.distance * 0.55, 4200) + 120;
+  const boostY = 140 + Math.random() * (canvas.height - 320);
+  gameState.boosts.push({ x: boostX, y: boostY, radius: 18, collected: false });
+
   if (level.name === 'Tutorial' && gameState.donuts.length > 0) {
     gameState.donuts[0].x = canvas.width + 360;
     gameState.donuts[0].y = canvas.height / 2 - 60;
@@ -208,6 +218,14 @@ function updateGame(delta) {
   gameState.player.y += gameState.player.vy * delta;
   gameState.distance += level.speed * delta;
 
+  if (gameState.boostActive) {
+    gameState.boostTimer -= delta;
+    if (gameState.boostTimer <= 0) {
+      gameState.boostActive = false;
+      gameState.boostTimer = 0;
+    }
+  }
+
   if (gameState.player.y < 18) {
     gameState.player.y = 18;
     gameState.player.vy = 0;
@@ -226,8 +244,13 @@ function updateGame(delta) {
     donut.x -= level.speed * delta;
   });
 
+  gameState.boosts.forEach((boost) => {
+    boost.x -= level.speed * delta;
+  });
+
   gameState.obstacles = gameState.obstacles.filter((obstacle) => obstacle.x + obstacle.width > -40);
   gameState.donuts = gameState.donuts.filter((donut) => !donut.collected && donut.x > -40);
+  gameState.boosts = gameState.boosts.filter((boost) => !boost.collected && boost.x > -40);
 
   checkCollisions();
   hudScore.textContent = gameState.score;
@@ -251,6 +274,10 @@ function checkCollisions() {
     const gapTop = obstacle.gapY;
     const gapBottom = obstacle.gapY + obstacle.gapHeight;
 
+    if (gameState.boostActive) {
+      continue;
+    }
+
     if (playerBox.right > obstacleLeft && playerBox.left < obstacleRight) {
       if (playerBox.top < gapTop || playerBox.bottom > gapBottom) {
         handleLoss('You hit an obstacle. Give it another try!');
@@ -258,6 +285,21 @@ function checkCollisions() {
       }
     }
   }
+
+  gameState.boosts.forEach((boost) => {
+    if (boost.collected) {
+      return;
+    }
+
+    const dx = gameState.player.x + gameState.player.width / 2 - boost.x;
+    const dy = gameState.player.y + gameState.player.height / 2 - boost.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < boost.radius + gameState.player.radius - 4) {
+      boost.collected = true;
+      gameState.boostActive = true;
+      gameState.boostTimer = 5;
+    }
+  });
 
   gameState.donuts.forEach((donut) => {
     const dx = gameState.player.x + gameState.player.width / 2 - donut.x;
@@ -309,6 +351,7 @@ function drawGame() {
   drawBackground(level.background);
   drawGround();
   drawObstacles();
+  drawBoosts();
   drawDonuts();
   drawPlayer();
   drawLevelInfo();
@@ -353,6 +396,37 @@ function drawObstacles() {
     ctx.fillStyle = '#72e0ff';
     ctx.fillRect(obstacle.x + 10, obstacle.gapY - 8, obstacle.width - 20, 10);
     ctx.fillRect(obstacle.x + 10, obstacle.gapY + obstacle.gapHeight, obstacle.width - 20, 10);
+  });
+}
+
+function drawBoosts() {
+  gameState.boosts.forEach((boost) => {
+    if (boost.collected) {
+      return;
+    }
+
+    ctx.save();
+    ctx.translate(boost.x, boost.y);
+    ctx.strokeStyle = '#7ceeff';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(0, 0, boost.radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(124, 238, 255, 0.28)';
+    ctx.beginPath();
+    ctx.arc(0, 0, boost.radius - 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f4feff';
+    ctx.beginPath();
+    ctx.moveTo(-4, -10);
+    ctx.lineTo(8, -4);
+    ctx.lineTo(2, -2);
+    ctx.lineTo(6, 10);
+    ctx.lineTo(-8, 4);
+    ctx.lineTo(-2, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   });
 }
 
@@ -470,12 +544,13 @@ function drawPlayer() {
 
 function drawLevelInfo() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-  ctx.fillRect(18, 18, 210, 62);
+  ctx.fillRect(18, 18, 250, 86);
   ctx.fillStyle = '#f4fbff';
   ctx.font = '600 18px Inter, system-ui, sans-serif';
   ctx.fillText(gameState.level.name, 26, 42);
   ctx.font = '500 14px Inter, system-ui, sans-serif';
   ctx.fillText(`Donuts: ${gameState.score / 50}`, 26, 60);
+  ctx.fillText(`Boost: ${gameState.boostActive ? `${gameState.boostTimer.toFixed(1)}s` : 'Ready'}`, 26, 80);
 }
 
 function flapPlayer() {
@@ -547,7 +622,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setCharacter('cat');
   showOverlay(
     'Welcome to Bibi Flap',
-    'Choose your character and begin the tutorial to learn how to fly. Tap the screen or press Space to flap and collect donuts while avoiding obstacles.',
+    'Choose your character and begin the tutorial to learn how to fly. Tap the screen or press Space to flap, collect donuts, and grab the blue boost orb to pass through obstacles for 5 seconds.',
     'Start Tutorial',
     () => startLevel(0)
   );
