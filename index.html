@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bibi Flap</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>Bibi Flap</h1>
+      <p>Fly, dodge obstacles and catch as many donuts as you can.</p>
+    </header>
+
+    <section id="menuScreen" class="screen active">
+      <div class="menu-card">
+        <h2>Pick your flyer</h2>
+        <div class="character-row">
+          <button type="button" class="character-card selected" data-character="cat">
+            <span class="character-icon">🐱</span>
+            <strong>Cat</strong>
+          </button>
+          <button type="button" class="character-card" data-character="dog">
+            <span class="character-icon">🐶</span>
+            <strong>Dog</strong>
+          </button>
+          <button type="button" class="character-card" data-character="bee">
+            <span class="character-icon">🐝</span>
+            <strong>Bee</strong>
+          </button>
+          <button type="button" class="character-card" data-character="book">
+            <span class="character-icon">📘</span>
+            <strong>Book</strong>
+          </button>
+        </div>
+
+        <div class="menu-actions">
+          <button type="button" id="startTutorialButton" class="primary">Start Tutorial</button>
+          <button type="button" id="startGameButton" class="secondary">Skip to Level 1</button>
+        </div>
+        <p class="small-note">Tap the screen or use the <strong>space bar</strong> to flap. Avoid obstacles and collect donuts until you reach the end of the phase.</p>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen hidden">
+      <div class="hud">
+        <div class="hud-item">Character: <span id="hudCharacter">Cat</span></div>
+        <div class="hud-item">Level: <span id="hudLevel">Tutorial</span></div>
+        <div class="hud-item">Score: <span id="hudScore">0</span></div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="900" height="540"></canvas>
+      </div>
+    </section>
+
+    <div id="overlay" class="overlay hidden">
+      <div class="overlay-panel">
+        <h2 id="overlayTitle">Ready?</h2>
+        <p id="overlayText"></p>
+        <div class="overlay-buttons">
+          <button type="button" id="overlayButton" class="primary">Continue</button>
+          <button type="button" id="overlaySecondaryButton" class="secondary hidden">Back to Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

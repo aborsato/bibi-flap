@@ -1,0 +1,240 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #15232b;
+  color: #f3f7f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #5fb8ff 0%, #082038 50%, #08111c 100%);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.app-shell {
+  width: min(100%, 1080px);
+  min-height: calc(100svh - 24px);
+  padding: clamp(12px, 3vw, 24px);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: clamp(12px, 3vw, 20px);
+}
+
+.app-header h1 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  margin: 0;
+}
+
+.app-header p {
+  margin: 8px auto 0;
+  max-width: 680px;
+  color: #c8d7e3;
+}
+
+.screen {
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+.menu-card,
+.overlay-panel {
+  background: rgba(17, 30, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: clamp(16px, 4vw, 22px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  padding: clamp(18px, 4vw, 26px);
+}
+
+.menu-card h2,
+.overlay-panel h2 {
+  margin: 0 0 18px;
+  font-size: 1.75rem;
+}
+
+.character-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.character-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f3f7f9;
+  padding: 20px 14px;
+  border-radius: 18px;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.character-card.selected,
+.character-card:hover {
+  border-color: #72e0ff;
+  background: rgba(114, 224, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.character-icon {
+  font-size: 2.15rem;
+}
+
+.character-card strong {
+  margin-top: 6px;
+}
+
+.menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.primary,
+.secondary {
+  border: none;
+  border-radius: 999px;
+  min-width: 170px;
+  padding: 14px 18px;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.primary {
+  background: linear-gradient(135deg, #4dd9ff 0%, #72e0ff 100%);
+  color: #082038;
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e7f3ff;
+}
+
+.small-note {
+  margin: 0;
+  color: #a9c3d8;
+  text-align: center;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 0 6px;
+}
+
+.hud-item {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  padding: 12px 16px;
+  min-width: 170px;
+  text-align: center;
+  flex: 1;
+}
+
+.canvas-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+canvas {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  max-height: min(72dvh, 540px);
+  border-radius: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.09);
+  background: #0c1b2b;
+  box-shadow: inset 0 0 52px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 10, 22, 0.74);
+  padding: 16px;
+}
+
+.overlay-panel {
+  max-width: 520px;
+  width: 100%;
+}
+
+.overlay-panel p {
+  color: #d7e6f5;
+  line-height: 1.7;
+}
+
+.overlay-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 8px;
+  }
+
+  .app-shell {
+    min-height: calc(100svh - 16px);
+  }
+
+  .character-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .menu-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hud {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .overlay-buttons {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
